@@ -14,45 +14,21 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List _allResults = [];
-  List _resultList = [];
+
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
-    _searchController.addListener(_onSearchChanged);
+   
     super.initState();
 
     categoriesFuture = DatabaseMethods().getCategories();
   }
 
-  _onSearchChanged() {
-    searchResultList();
-  }
+  
 
-  searchResultList() {
-    var showResults = [];
-    if (_searchController.text != "") {
-      for (var clientSnapShot in _allResults) {
-        var name = clientSnapShot["name"].toString().toLowerCase();
-        if (name.contains(_searchController.text.toLowerCase())) {
-          showResults.add(clientSnapShot);
-        }
-      }
-    } else {
-      showResults = List.from(_allResults);
-    }
-    setState(() {
-      _resultList = showResults;
-    });
-  }
+  
 
-  @override
-  void dispose() {
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
-    super.dispose();
-  }
 
   late Future<List<String>> categoriesFuture;
   String _selectedLocation = 'Your Location';
@@ -132,40 +108,6 @@ class _HomeState extends State<Home> {
                           ),
                         );
                       },
-                    ),
-                    SizedBox(
-                      height: 150.0,
-                      width: 150.0,
-                      child: ListView.builder(
-                        itemCount: _resultList.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              _handleCategoryTap(_resultList[index]['name']);
-                            },
-                            child: Container(
-                              margin: EdgeInsets.symmetric(vertical: 8.0),
-                              padding: EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 1,
-                                    blurRadius: 3,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                _resultList[index]['name'],
-                                style: TextStyle(fontSize: 16.0),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
                     ),
                   ]),
             ),

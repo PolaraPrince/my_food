@@ -21,10 +21,10 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     _searchController.addListener(_onSearchChanged);
     super.initState();
-    getClientStream();
   }
 
   _onSearchChanged() {
+    print(_searchController.text);
     searchResultList();
   }
 
@@ -64,6 +64,11 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
+  void didChangeDependencies() {
+    getClientStream();
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,17 +82,14 @@ class _SearchPageState extends State<SearchPage> {
       ),
       body: Container(
         color: Color(0xffF1FADA),
-        padding: EdgeInsets.all(16.0),
-        child: SizedBox(
-          height: 150.0,
-          width: 150.0,
+        child: Expanded(
           child: ListView.builder(
             itemCount: _resultList.length,
             itemBuilder: (context, index) {
               return ListTile(
+                title: Text(_resultList[index]['name']),
                 onTap: () {
                   _handleCategoryTap(_resultList[index]['name']);
-                  print(_resultList);
                 },
               );
             },

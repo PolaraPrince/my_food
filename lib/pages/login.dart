@@ -74,7 +74,7 @@ class _LogInState extends State<LogIn> {
     try {
       if (_formkey.currentState!.validate()) {
         await login(
-            email, password, context); // Call the login function with context
+            email, password, context); 
       }
     } catch (e) {
       print('Error during login: $e');

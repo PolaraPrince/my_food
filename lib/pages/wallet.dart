@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:my_food/service/database.dart';
@@ -216,7 +215,10 @@ class _WalletState extends State<Wallet> {
               paymentSheetParameters: SetupPaymentSheetParameters(
                   paymentIntentClientSecret: paymentIntent!['client_secret'],
                   // applePay: const PaymentSheetApplePay(merchantCountryCode: '+92',),
-                  // googlePay: const PaymentSheetGooglePay(testEnv: true, currencyCode: "US", merchantCountryCode: "+92"),
+                  googlePay: const PaymentSheetGooglePay(
+                      testEnv: true,
+                      currencyCode: "IND",
+                      merchantCountryCode: "+91"),
                   style: ThemeMode.dark,
                   merchantDisplayName: 'Adnan'))
           .then((value) {});
@@ -304,79 +306,80 @@ class _WalletState extends State<Wallet> {
   }
 
   Future openEdit() => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-            content: SingleChildScrollView(
-              child: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Icon(Icons.cancel)),
-                        SizedBox(
-                          width: 60.0,
-                        ),
-                        Center(
-                          child: Text(
-                            "Add Money",
-                            style: TextStyle(
-                              color: Color(0xFF008080),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Text("Amount"),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black38, width: 2.0),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: TextField(
-                        controller: amountcontroller,
-                        decoration: InputDecoration(
-                            border: InputBorder.none, hintText: 'Enter Amount'),
+        context: context,
+        builder: (context) => AlertDialog(
+          content: SingleChildScrollView(
+            child: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Icon(Icons.cancel)),
+                      SizedBox(
+                        width: 60.0,
                       ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                          makePayment(amountcontroller.text);
-                        },
-                        child: Container(
-                          width: 100,
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
+                      Center(
+                        child: Text(
+                          "Add Money",
+                          style: TextStyle(
                             color: Color(0xFF008080),
-                            borderRadius: BorderRadius.circular(10),
+                            fontWeight: FontWeight.bold,
                           ),
-                          child: Center(
-                              child: Text(
-                            "Pay",
-                            style: TextStyle(color: Colors.white),
-                          )),
                         ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  Text("Amount"),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black38, width: 2.0),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: TextField(
+                      controller: amountcontroller,
+                      decoration: InputDecoration(
+                          border: InputBorder.none, hintText: 'Enter Amount'),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                        makePayment(amountcontroller.text);
+                      },
+                      child: Container(
+                        width: 100,
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF008080),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                            child: Text(
+                          "Pay",
+                          style: TextStyle(color: Colors.white),
+                        )),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  )
+                ],
               ),
             ),
-          ));
+          ),
+        ),
+      );
 }
