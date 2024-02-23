@@ -63,24 +63,4 @@ class DatabaseMethods {
     return await FirebaseFirestore.instance.collection(name).snapshots();
   }
 
-  Future<List<String>> searchCategories(String query) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('categories')
-        .where('name', isGreaterThanOrEqualTo: query)
-        .where('name', isLessThan: ('${query}z').toLowerCase())
-        .get();
-    return querySnapshot.docs.map((doc) => doc['name'] as String).toList();
-  }
-
-  Future<List<String>> searchItems(String query) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection('cart')
-        .where('itemName', isGreaterThanOrEqualTo: query)
-        .where('itemName', isLessThan: ('${query}z'))
-        .get();
-    return querySnapshot.docs.map((doc) => doc['itemName'] as String).toList();
-  }
-  
 }

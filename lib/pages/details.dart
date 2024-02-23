@@ -10,7 +10,10 @@ class DetailsPage extends StatefulWidget {
   final String uid;
   final String categoryName;
 
-  DetailsPage({required this.uid, required this.categoryName, required String location});
+  DetailsPage(
+      {required this.uid,
+      required this.categoryName,
+      required String location});
 
   @override
   _DetailsPageState createState() => _DetailsPageState();
@@ -56,9 +59,7 @@ class _DetailsPageState extends State<DetailsPage> {
             border: InputBorder.none,
           ),
           onChanged: (value) {
-            setState(() {
-              categoriesFuture = DatabaseMethods().searchItems(value);
-            });
+            setState(() {});
           },
         ),
       ),
