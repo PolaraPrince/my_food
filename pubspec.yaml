@@ -30,14 +30,17 @@ dependencies:
   flutter:
     sdk: flutter
   curved_navigation_bar: ^1.0.3
-  firebase_core: ^2.25.4
-  firebase_auth: ^4.17.5
-  cloud_firestore: ^4.15.5
-  firebase_storage: ^11.6.6
+  firebase_core: ^2.26.0
+  firebase_auth: ^4.17.7
+  cloud_firestore: ^4.15.7
+  firebase_storage: ^11.6.8
   flutter_stripe: ^10.0.0
   http: ^1.2.0
   shared_preferences: ^2.2.2
   image_picker: ^1.0.7
+  cached_network_image: ^3.3.1
+  carousel_slider: ^4.2.1
+  another_carousel_pro: ^1.0.2
  
 
   # The following adds the Cupertino Icons font to your application.

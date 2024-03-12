@@ -37,7 +37,7 @@ class _BottomNevState extends State<BottomNev> {
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
         height: 65,
-        backgroundColor: Color(0xffF1FADA),
+        backgroundColor: Colors.white,
         color: Colors.black,
         animationDuration: Duration(milliseconds: 400),
         onTap: (int index) {

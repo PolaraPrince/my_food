@@ -6,6 +6,7 @@ import 'package:my_food/pages/login.dart';
 import 'package:my_food/service/database.dart';
 import 'package:my_food/service/shared_pref.dart';
 import 'package:my_food/widget/widget_support.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({Key? key}) : super(key: key);
@@ -22,6 +23,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController mailController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  SharedPreferenceHelper _sharedPrefs = SharedPreferenceHelper();
 
   registration() async {
     if (password != "") {
@@ -39,6 +41,11 @@ class _SignUpState extends State<SignUp> {
         ));
 
         String userId = userCredential.user!.uid;
+        void saveUserData(String name, String email) async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('name', name);
+          prefs.setString('email', email);
+        }
 
         await FirebaseFirestore.instance.collection('users').doc(userId).set({
           'uid': userId,

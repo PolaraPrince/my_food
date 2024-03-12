@@ -5,6 +5,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:my_food/admin/add_food.dart';
 import 'package:my_food/admin/home_admin.dart';
 import 'package:my_food/firebase_options.dart';
+import 'package:my_food/pages/banner.dart';
 import 'package:my_food/pages/bottomnav.dart';
 import 'package:my_food/pages/home.dart';
 import 'package:my_food/pages/login.dart';
@@ -33,8 +34,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -44,7 +43,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: Home());
+        home: BottomNev());
   }
 }
 

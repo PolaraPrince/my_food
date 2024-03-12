@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:my_food/pages/details.dart';
+import 'package:my_food/pages/showItems.dart';
 import 'package:my_food/service/database.dart';
 import 'package:my_food/widget/widget_support.dart';
 
@@ -24,7 +24,6 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   _onSearchChanged() {
-    print(_searchController.text);
     searchResultList();
   }
 
@@ -50,9 +49,19 @@ class _SearchPageState extends State<SearchPage> {
         .collection("categories")
         .orderBy('name')
         .get();
-
+    List<DocumentSnapshot> allResults = [];
+    for (var doc in data.docs) {
+      var itemsData = await FirebaseFirestore.instance
+          .collection('categories')
+          .doc(doc.id)
+          .collection('items')
+          .get();
+      for (var item in itemsData.docs) {
+        allResults.add(item);
+      }
+    }
     setState(() {
-      _allResults = data.docs;
+      _allResults = allResults;
     });
     searchResultList();
   }
@@ -64,6 +73,7 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
+  @override
   void didChangeDependencies() {
     getClientStream();
     super.didChangeDependencies();
@@ -86,7 +96,23 @@ class _SearchPageState extends State<SearchPage> {
           child: ListView.builder(
             itemCount: _resultList.length,
             itemBuilder: (context, index) {
+              if (index == 0 && _resultList.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No results found',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                );
+              }
               return ListTile(
+                leading: CircleAvatar(
+                  radius: 15,
+                  backgroundColor: Colors.black12,
+                  child: Icon(
+                    Icons.search,
+                    color: Colors.black87,
+                  ),
+                ),
                 title: Text(_resultList[index]['name']),
                 onTap: () {
                   _handleCategoryTap(_resultList[index]['name']);
@@ -110,10 +136,9 @@ class _SearchPageState extends State<SearchPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailsPage(
+            builder: (context) => ShowItems(
               uid: uid,
               categoryName: categoryName,
-              location: 'Your Location',
             ),
           ),
         );

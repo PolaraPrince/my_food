@@ -5,12 +5,40 @@ import 'package:flutter/material.dart';
 import 'package:my_food/service/auth.dart';
 import 'package:my_food/service/shared_pref.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
 
   @override
   State<Profile> createState() => _ProfileState();
+}
+
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Profile'),
+    ),
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Name: ${_name ?? 'Unknown'}'),
+          Text('Email: ${_email ?? 'Unknown'}'),
+        ],
+      ),
+    ),
+  );
+}
+
+String _name = '';
+String _email = '';
+
+Future<void> _getUserData() async {
+  final prefs = await SharedPreferences.getInstance();
+  final name = prefs.getString('userNameKey');
+  final email = prefs.getString('userEmailKey');
 }
 
 class _ProfileState extends State<Profile> {
@@ -46,7 +74,11 @@ class _ProfileState extends State<Profile> {
     profile = await SharedPreferenceHelper().getUserProfile();
     name = await SharedPreferenceHelper().getUserName();
     email = await SharedPreferenceHelper().getUserEmail();
-    setState(() {});
+
+    setState(() {
+      _name = name ?? '';
+      _email = email ?? '';
+    });
   }
 
   onthisload() async {
@@ -57,6 +89,7 @@ class _ProfileState extends State<Profile> {
   @override
   void initState() {
     onthisload();
+    _getUserData();
     super.initState();
   }
 
@@ -375,5 +408,15 @@ class _ProfileState extends State<Profile> {
               ),
             ),
     );
+  }
+
+  Future<void> _getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('userNameKey');
+    final email = prefs.getString('userEmailKey');
+    setState(() {
+      _name = name ?? '';
+      _email = email ?? '';
+    });
   }
 }

@@ -2,30 +2,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_food/pages/addcart.dart';
+import 'package:my_food/pages/details.dart';
 import 'package:my_food/service/database.dart';
 import 'package:my_food/service/shared_pref.dart';
 import 'package:my_food/widget/widget_support.dart';
 
-class showItems extends StatefulWidget {
+class ShowItems extends StatefulWidget {
   final String uid;
   final String categoryName;
 
-  showItems({
+  ShowItems({
     required this.uid,
     required this.categoryName,
   });
 
   @override
-  _showItemsState createState() => _showItemsState();
+  _ShowItemsState createState() => _ShowItemsState();
 }
 
-class _showItemsState extends State<showItems> {
+class _ShowItemsState extends State<ShowItems> {
   late Stream<QuerySnapshot> foodItemsStream;
   TextEditingController? searchController;
   List<int> descriptionStates = [];
   List<int> quantityValues = [];
-  double totalPrice = 0.0;
-  late Future<List<String>> categoriesFuture;
 
   @override
   void initState() {
@@ -35,8 +34,9 @@ class _showItemsState extends State<showItems> {
   }
 
   void _fetchFoodItems() {
-    String categoryPath = '/categories/${widget.uid}/items';
+    String categoryPath = 'items';
     Query collection = FirebaseFirestore.instance.collection(categoryPath);
+    collection = collection.where('categoryId', isEqualTo: widget.uid);
     foodItemsStream = collection.snapshots();
     descriptionStates = List.filled(10, 0);
     quantityValues = List.filled(10, 0);
@@ -77,7 +77,9 @@ class _showItemsState extends State<showItems> {
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             }
 
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -95,6 +97,14 @@ class _showItemsState extends State<showItems> {
               itemBuilder: (BuildContext context, int index) {
                 final foodItem = foodItems[index];
                 return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailsPage(item: foodItem),
+                      ),
+                    );
+                  },
                   child: Container(
                     margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                     padding: EdgeInsets.all(10),
@@ -142,97 +152,92 @@ class _showItemsState extends State<showItems> {
                             ],
                           ),
                         ),
-                        Expanded(
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                        SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '\₹${foodItem['price'].toDouble()}',
+                              style: AppWidget.semiBoldTextFeildStyle(),
+                            ),
+                            SizedBox(height: 10),
+                            Row(
                               children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    if (quantityValues[index] > 0) {
+                                      setState(() {
+                                        quantityValues[index]--;
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 20.0,
+                                    width: 20.0,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.remove,
+                                      color: Colors.white,
+                                      size: 18.0,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10.0),
                                 Text(
-                                  '\₹${foodItem['price'].toDouble()}',
+                                  quantityValues[index].toString(),
                                   style: AppWidget.semiBoldTextFeildStyle(),
                                 ),
-                                SizedBox(height: 10),
-                                Row(children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [],
+                                SizedBox(width: 10.0),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      quantityValues[index]++;
+                                    });
+                                  },
+                                  child: Container(
+                                    height: 20.0,
+                                    width: 20.0,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.add,
+                                      color: Colors.white,
+                                      size: 18.0,
+                                    ),
                                   ),
-                                  Spacer(),
-                                  GestureDetector(
+                                ),
+                                SizedBox(width: 25.0),
+                                Container(
+                                  child: GestureDetector(
                                     onTap: () {
                                       if (quantityValues[index] > 0) {
-                                        setState(() {
-                                          quantityValues[index]--;
-                                        });
+                                        addCartItem(foodItem, index, context);
                                       }
                                     },
                                     child: Container(
-                                      height: 20.0,
-                                      width: 20.0,
+                                      width: 30,
+                                      height: 28,
                                       decoration: BoxDecoration(
-                                        color: Colors.black,
+                                        color: const Color.fromARGB(
+                                            255, 57, 57, 57),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Icon(
-                                        Icons.remove,
+                                        Icons.shopping_cart_outlined,
                                         color: Colors.white,
-                                        size: 18.0,
+                                        size: 24.0,
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: 10.0),
-                                  Text(
-                                    quantityValues[index].toString(),
-                                    style: AppWidget.semiBoldTextFeildStyle(),
-                                  ),
-                                  SizedBox(width: 10.0),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        quantityValues[index]++;
-                                      });
-                                    },
-                                    child: Container(
-                                      height: 20.0,
-                                      width: 20.0,
-                                      decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Icon(
-                                        Icons.add,
-                                        color: Colors.white,
-                                        size: 18.0,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 25.0),
-                                  Container(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        if (quantityValues[index] > 0) {
-                                          addCartItem(foodItem, index, context);
-                                        }
-                                      },
-                                      child: Container(
-                                        width: 30,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                          color: const Color.fromARGB(
-                                              255, 57, 57, 57),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: Icon(
-                                          Icons.shopping_cart_outlined,
-                                          color: Colors.white,
-                                          size: 24.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ]),
-                              ]),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -262,14 +267,6 @@ class _showItemsState extends State<showItems> {
         context,
         MaterialPageRoute(
           builder: (context) => CartPage(),
-          settings: RouteSettings(
-            arguments: <String, dynamic>{
-              'quantity': quantityValues[index],
-              'itemUid': foodItem.id,
-              'userId': FirebaseAuth.instance.currentUser!.uid,
-              'dateTime': DateTime.now(),
-            },
-          ),
         ),
       );
     } catch (error) {
