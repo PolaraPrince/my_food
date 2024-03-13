@@ -181,13 +181,12 @@ class _CartPageState extends State<CartPage> {
                   GestureDetector(
                     onTap: () {
                       showModalBottomSheet<void>(
-                        backgroundColor: Color(0xff9AD0C2),
                         context: context,
                         builder: (BuildContext context) {
                           return SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: SizedBox(
-                              height: MediaQuery.of(context).size.height / 2,
+                              height: MediaQuery.of(context).size.height / 1,
                               width: MediaQuery.of(context).size.width,
                               child: Padding(
                                 padding: const EdgeInsets.only(
@@ -209,7 +208,6 @@ class _CartPageState extends State<CartPage> {
                                         SizedBox(height: 15.0),
                                         Container(
                                           decoration: BoxDecoration(
-                                            color: Color(0xff9AD0C2),
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
                                           ),
@@ -217,7 +215,7 @@ class _CartPageState extends State<CartPage> {
                                                   .size
                                                   .width /
                                               1,
-                                          height: 200,
+                                          height: 150,
                                           child: StreamBuilder<QuerySnapshot>(
                                             stream: user != null
                                                 ? FirebaseFirestore.instance
@@ -259,7 +257,7 @@ class _CartPageState extends State<CartPage> {
                                                   return Stack(
                                                     children: [
                                                       Container(
-                                                        width: 200,
+                                                        width: 180,
                                                         margin: EdgeInsets
                                                             .symmetric(
                                                                 horizontal:
@@ -341,7 +339,7 @@ class _CartPageState extends State<CartPage> {
                                                                 : (addressType ==
                                                                         'Office'
                                                                     ? 'Office'
-                                                                    : ''),
+                                                                    : 'Other'),
                                                             style: TextStyle(
                                                                 color: Colors
                                                                     .white),
@@ -366,7 +364,7 @@ class _CartPageState extends State<CartPage> {
                                                   MaterialState.pressed)) {
                                                 return Color(0xff9AD0C2);
                                               } else {
-                                                return Color(0xffF1FADA);
+                                                return Colors.black;
                                               }
                                             }),
                                             foregroundColor:
@@ -376,7 +374,7 @@ class _CartPageState extends State<CartPage> {
                                                   MaterialState.pressed)) {
                                                 return Color(0xffF1FADA);
                                               } else {
-                                                return Colors.black;
+                                                return Colors.white;
                                               }
                                             }),
                                           ),

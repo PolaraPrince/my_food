@@ -63,7 +63,7 @@ class DatabaseMethods {
     return '';
   }
 
- Future<String> addFoodItem(Map<String, dynamic> foodItem, String categoryName,
+  Future<String> addFoodItem(Map<String, dynamic> foodItem, String categoryName,
       {Uint8List? file}) async {
     final categorySnapshot = await FirebaseFirestore.instance
         .collection('categories')

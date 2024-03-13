@@ -10,7 +10,7 @@ class AddAddressPage extends StatefulWidget {
 class _AddAddressPageState extends State<AddAddressPage> {
   final _formKey = GlobalKey<FormState>();
   late String _name, _houseno, _apartment, _landmark, _city, _zipCode;
-  bool _isDefault = false;
+ 
   late String _selectedLocation = "";
   @override
   Widget build(BuildContext context) {
@@ -117,18 +117,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                       },
                     ),
                   ),
-                  CheckboxListTile(
-                    title: Text("Set as default address"),
-                    value: _isDefault,
-                    onChanged: (bool? value) {
-                      User? user = FirebaseAuth.instance.currentUser;
-                      if (user != null) {
-                        setState(() {
-                          _isDefault = value!;
-                        });
-                      }
-                    },
-                  ),
+                
                   ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
@@ -147,7 +136,6 @@ class _AddAddressPageState extends State<AddAddressPage> {
                             "city": _city,
                             "zipCode": _zipCode,
                             "location": _selectedLocation,
-                            "isDefault": _isDefault,
                           }).then((value) {
                             Navigator.pop(context);
                           }).catchError((error) {
