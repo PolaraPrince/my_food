@@ -16,13 +16,11 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
-  String? wallet, id;
+  String wallet = "0", id = "";
   int? add;
   TextEditingController amountcontroller = new TextEditingController();
 
   getthesharedpref() async {
-    wallet = await SharedPreferenceHelper().getUserWallet();
-    id = await SharedPreferenceHelper().getUserId();
     setState(() {});
   }
 
@@ -50,156 +48,153 @@ class _WalletState extends State<Wallet> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).maybePop(context);
           },
         ),
       ),
-      body: wallet == null
-          ? CircularProgressIndicator()
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(color: Color(0xFFF2F2F2)),
+            child: Row(
               children: [
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(color: Color(0xFFF2F2F2)),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "images/wallet.png",
-                        height: 60,
-                        width: 60,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(
-                        width: 40.0,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Your Wallet",
-                            style: AppWidget.lightTextFeildStyle(),
-                          ),
-                          SizedBox(
-                            height: 5.0,
-                          ),
-                          Text(
-                            "\₹" + wallet!,
-                            style: AppWidget.boldTextFeildStyle(),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
+                Image.asset(
+                  "images/wallet.png",
+                  height: 60,
+                  width: 60,
+                  fit: BoxFit.cover,
                 ),
                 SizedBox(
-                  height: 20.0,
+                  width: 40.0,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20.0),
-                  child: Text(
-                    "Add money",
-                    style: AppWidget.semiBoldTextFeildStyle(),
-                  ),
-                ),
-                SizedBox(
-                  height: 10.0,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        makePayment('100');
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Text(
-                          "\₹" + "100",
-                          style: AppWidget.semiBoldTextFeildStyle(),
-                        ),
-                      ),
+                    Text(
+                      "Your Wallet",
+                      style: AppWidget.lightTextFeildStyle(),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        makePayment('500');
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Text(
-                          "\₹" + "500",
-                          style: AppWidget.semiBoldTextFeildStyle(),
-                        ),
-                      ),
+                    SizedBox(
+                      height: 5.0,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        makePayment('1000');
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Text(
-                          "\₹" + "1000",
-                          style: AppWidget.semiBoldTextFeildStyle(),
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        makePayment('2000');
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Text(
-                          "\₹" + "2000",
-                          style: AppWidget.semiBoldTextFeildStyle(),
-                        ),
-                      ),
+                    Text(
+                      "\₹" + wallet,
+                      style: AppWidget.boldTextFeildStyle(),
                     )
                   ],
-                ),
-                SizedBox(
-                  height: 50.0,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    openEdit();
-                  },
-                  child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20.0),
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                        color: Color(0xFF008080),
-                        borderRadius: BorderRadius.circular(8)),
-                    child: Center(
-                      child: Text(
-                        "Add Money",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
                 )
               ],
             ),
+          ),
+          SizedBox(
+            height: 20.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 20.0),
+            child: Text(
+              "Add money",
+              style: AppWidget.semiBoldTextFeildStyle(),
+            ),
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  makePayment('100');
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Text(
+                    "\₹" + "100",
+                    style: AppWidget.semiBoldTextFeildStyle(),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  makePayment('500');
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Text(
+                    "\₹" + "500",
+                    style: AppWidget.semiBoldTextFeildStyle(),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  makePayment('1000');
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Text(
+                    "\₹" + "1000",
+                    style: AppWidget.semiBoldTextFeildStyle(),
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  makePayment('2000');
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5)),
+                  child: Text(
+                    "\₹" + "2000",
+                    style: AppWidget.semiBoldTextFeildStyle(),
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 50.0,
+          ),
+          GestureDetector(
+            onTap: () {
+              openEdit();
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 20.0),
+              padding: EdgeInsets.symmetric(vertical: 12.0),
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                  color: Color(0xFF008080),
+                  borderRadius: BorderRadius.circular(8)),
+              child: Center(
+                child: Text(
+                  "Add Money",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.0,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 

@@ -24,7 +24,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final TextEditingController _searchController = TextEditingController();
+  bool isLoading = true;
+  String name = '';
   User? user = FirebaseAuth.instance.currentUser;
   Future<List<String>> getCategories() async {
     QuerySnapshot querySnapshot =
@@ -47,6 +48,20 @@ class _HomeState extends State<Home> {
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
     });
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          setState(() {
+            name = documentSnapshot['name'];
+            isLoading = false;
+          });
+        }
+      });
+    }
   }
 
   late Future<List<String>> categoriesFuture;
@@ -54,15 +69,17 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        body: SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
-          margin: EdgeInsets.only(top: 30.0, left: 10, right: 10),
+          margin: EdgeInsets.only(top: 55.0, left: 15, right: 15),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Hello Prince,",
-                style: AppWidget.boldTextFeildStyle(),
+                "Hello ${name!},",
+                style: AppWidget.headlineTextFeildStyle(),
               ),
               Container(
                 padding: EdgeInsets.all(3),
@@ -81,205 +98,20 @@ class _HomeState extends State<Home> {
             ],
           ),
         ),
-        GestureDetector(
-          onTap: () {
-            showModalBottomSheet<void>(
-              backgroundColor: Color(0xff9AD0C2),
-              context: context,
-              builder: (BuildContext context) {
-                return SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height / 2,
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20.0, top: 30.0, right: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text('Select Delivery Location',
-                                  style: AppWidget.semiBoldTextFeildStyle()),
-                              Text(
-                                  'Select a delivery location to see product \navailable,offers and discount.',
-                                  style: AppWidget.lightTextFeildStyle()),
-                              SizedBox(height: 15.0),
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xff9AD0C2),
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                width: MediaQuery.of(context).size.width / 1,
-                                height: 200,
-                                child: StreamBuilder<QuerySnapshot>(
-                                  stream: user != null
-                                      ? FirebaseFirestore.instance
-                                          .collection("users")
-                                          .doc(user!.uid)
-                                          .collection("addresses")
-                                          .snapshots()
-                                      : Stream.value(<DocumentSnapshot>[]
-                                          as QuerySnapshot<Object?>),
-                                  builder: (BuildContext context,
-                                      AsyncSnapshot<QuerySnapshot> snapshot) {
-                                    if (snapshot.hasError) {
-                                      return Text('Error: ${snapshot.error}');
-                                    }
-
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return CircularProgressIndicator();
-                                    }
-
-                                    return ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: snapshot.data!.docs.length,
-                                      itemBuilder:
-                                          (BuildContext context, int index) {
-                                        final data = snapshot.data!.docs[index]
-                                            .data() as Map<String, dynamic>;
-                                        String addressType = data['location'];
-                                        return Stack(
-                                          children: [
-                                            Container(
-                                              width: 200,
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 8.0),
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                    color: addressType == 'Home'
-                                                        ? Colors.green
-                                                        : (addressType ==
-                                                                'Office'
-                                                            ? Colors.blue
-                                                            : Color(
-                                                                0xffF1FADA))),
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                              ),
-                                              child: ListTile(
-                                                title: Text(
-                                                  data['name'],
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                subtitle: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(data['houseno']),
-                                                    Text(data['apartment']),
-                                                    Text(data['city']),
-                                                    Text(data['zipCode']),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            Positioned(
-                                              top: 0,
-                                              right: 8,
-                                              child: Container(
-                                                padding: EdgeInsets.all(4),
-                                                decoration: BoxDecoration(
-                                                  color: addressType == 'Home'
-                                                      ? Colors.green
-                                                      : (addressType == 'Office'
-                                                          ? Colors.blue
-                                                          : Colors.transparent),
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                          bottomLeft:
-                                                              Radius.circular(
-                                                            10,
-                                                          ),
-                                                          topRight:
-                                                              Radius.circular(
-                                                                  10)),
-                                                ),
-                                                child: Text(
-                                                  addressType == 'Home'
-                                                      ? 'Home'
-                                                      : (addressType == 'Office'
-                                                          ? 'Office'
-                                                          : ''),
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                              SizedBox(height: 15.0),
-                              ElevatedButton(
-                                child: Text('Add'),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateColor.resolveWith((states) {
-                                    if (states
-                                        .contains(MaterialState.pressed)) {
-                                      return Color(0xff9AD0C2);
-                                    } else {
-                                      return Color(0xffF1FADA);
-                                    }
-                                  }),
-                                  foregroundColor:
-                                      MaterialStateProperty.resolveWith(
-                                          (states) {
-                                    if (states
-                                        .contains(MaterialState.pressed)) {
-                                      return Color(0xffF1FADA);
-                                    } else {
-                                      return Colors.black;
-                                    }
-                                  }),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AddAddressPage()),
-                                  );
-                                },
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-          child: Container(
-              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              padding: EdgeInsets.all(11),
-              width: 120.0,
-              height: 40.0,
-              decoration: BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.circular(20.0)),
-              child: Text(
-                "Add Address",
-                style: TextStyle(color: Colors.white, fontFamily: "poppins"),
-              )),
-        ),
+        Container(
+            margin: EdgeInsets.only(top: 5.0, left: 15, right: 15),
+            child: Text('Shop smart, save more today!',
+                style: AppWidget.lightTextFeildStyle())),
+        Container(
+            margin: EdgeInsets.only(top: 5.0, left: 15, right: 15),
+            child: Text('Fresh picks, delivered fast!',
+                style: AppWidget.lightTextFeildStyle())),
         SizedBox(height: 8),
         Container(
-          margin: EdgeInsets.only(left: 10, right: 10),
-          child: CupertinoSearchTextField(
-            controller: _searchController,
-            placeholder: 'Search...',
-            onTap: () {
+          margin: EdgeInsets.only(left: 15, right: 15),
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -287,100 +119,266 @@ class _HomeState extends State<Home> {
                 ),
               );
             },
-          ),
-        ),
-        SizedBox(height: 20),
-        Center(
-          child: Container(
-            height: MediaQuery.of(context).size.height / 4.5,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15.0),
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: bannersFuture,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      return AnotherCarousel(
-                        images: snapshot.data!
-                            .map((banner) => Image(
-                                  fit: BoxFit.fill,
-                                  image: NetworkImage(
-                                    banner['image'],
-                                  ),
-                                ))
-                            .toList(),
-                        autoplayDuration: Duration(seconds: 20),
-                        dotSize: 4,
-                        dotSpacing: 15.0,
-                        indicatorBgPadding: 2,
-                        dotBgColor: Colors.transparent,
-                        dotColor: Colors.black,
-                      );
-                    }
-                  },
-                ),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: CupertinoColors.systemGrey5,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    CupertinoIcons.search,
+                    size: 18,
+                    color: Colors.grey,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Search...',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
               ),
             ),
           ),
         ),
         SizedBox(height: 20),
-        Expanded(
-          child: SingleChildScrollView(
-            child: FutureBuilder<List<String>>(
-              future: getCategories(),
-              builder:
-                  (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                        left: 10.0, right: 10.0, bottom: 20.0),
-                    child: Wrap(
-                      spacing: 20.0,
-                      runSpacing: 20.0,
-                      children: snapshot.data!.map((category) {
-                        return FutureBuilder<String?>(
-                          future:
-                              DatabaseMethods().getCategoryImageUrl(category),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<String?> imageSnapshot) {
-                            if (imageSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (imageSnapshot.hasError) {
-                              return Text('Error: ${imageSnapshot.error}');
-                            } else {
-                              final imageUrl = imageSnapshot.data;
-                              return CategoryCard(
-                                categoryName: category,
-                                imageUrl: imageUrl!,
-                              );
-                            }
-                          },
-                        );
-                      }).toList(),
-                    ),
-                  );
-                }
-              },
-            ),
+        Padding(
+          padding: const EdgeInsets.only(left: 15, right: 15),
+          child: Text(
+            'Categories',
+            style: AppWidget.semiBoldTextFeildStyle(),
           ),
         ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: FutureBuilder<List<String>>(
+            future: getCategories(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container();
+              } else if (snapshot.hasError) {
+                return Text('Error: ${snapshot.error}');
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    left: 15.0,
+                    right: 15.0,
+                  ),
+                  child: Row(
+                    children: snapshot.data!.map((category) {
+                      return FutureBuilder<String?>(
+                        future: DatabaseMethods().getCategoryImageUrl(category),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<String?> imageSnapshot) {
+                          if (imageSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Container();
+                          } else if (imageSnapshot.hasError) {
+                            return Text('Error: ${imageSnapshot.error}');
+                          } else {
+                            final imageUrl = imageSnapshot.data;
+                            return Container(
+                              margin: EdgeInsets.only(right: 18.0),
+                              child: Column(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      _handleCategoryTap(category);
+                                    },
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.white,
+                                      radius: 35,
+                                      child: CachedNetworkImage(
+                                          imageUrl: imageUrl!,
+                                          placeholder: (context, url) =>
+                                              Center()),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Text(
+                                    category,
+                                    style: TextStyle(
+                                        color: Color(0xff6D3805),
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w700),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+        SizedBox(height: 20),
+        Center(
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              double containerWidth = constraints.maxWidth;
+              double containerHeight = containerWidth / 2.5;
+
+              return Container(
+                width: containerWidth,
+                height: containerHeight,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15.0),
+                    child: FutureBuilder<List<Map<String, dynamic>>>(
+                      future: bannersFuture,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          return AnotherCarousel(
+                            images: snapshot.data!
+                                .map((banner) => CachedNetworkImage(
+                                      imageUrl: banner['image'],
+                                      fit: BoxFit.fill,
+                                      errorWidget: (context, url, error) =>
+                                          Icon(Icons.error),
+                                    ))
+                                .toList(),
+                            autoplayDuration: Duration(seconds: 20),
+                            dotSize: 4,
+                            dotSpacing: 15.0,
+                            indicatorBgPadding: 2,
+                            dotBgColor: Colors.transparent,
+                            dotColor: Colors.black,
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        SizedBox(height: 15),
+        Padding(
+          padding: const EdgeInsets.only(left: 15, right: 15, bottom: 10),
+          child: Text(
+            'Popular Deals',
+            style: AppWidget.semiBoldTextFeildStyle(),
+          ),
+        ),
+        FutureBuilder<List<Map<String, dynamic>>>(
+          future: getPopularItems(),
+          builder: (BuildContext context,
+              AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else {
+              return Container(
+                padding: EdgeInsets.only(left: 15),
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    final item = snapshot.data![index];
+                    final itemName = item['name'];
+                    final itemImage = item['image'];
+                    final itemPrice = item['price'];
+                    final itemUid = item['uid'];
+
+                    return Container(
+                      width: 150,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey,
+                            offset: Offset(0.0, 1.0),
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _handleItemTap(itemUid);
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: CachedNetworkImage(
+                                imageUrl: itemImage,
+                                width: 150,
+                                height: 100,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            itemName,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            '\₹${itemPrice.toString()}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          GestureDetector(
+                            onTap: () {
+                              _handleItemTap(itemUid);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 5, horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                'Add to Cart',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            }
+          },
+        ),
       ]),
-    );
+    ));
   }
 
   void _handleCategoryTap(String categoryName) {
@@ -404,5 +402,39 @@ class _HomeState extends State<Home> {
     }).catchError((error) {
       print("Error: $error");
     });
+  }
+
+  void _handleItemTap(String itemId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CartPage(),
+      ),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getPopularItems() async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('PopularDeals').get();
+
+    List<Map<String, dynamic>> popularItems = [];
+
+    for (var doc in querySnapshot.docs) {
+      final itemUid = doc['iteamuid'];
+      final itemDoc = await FirebaseFirestore.instance
+          .collection('items')
+          .doc(itemUid)
+          .get();
+      if (itemDoc.exists) {
+        popularItems.add({
+          'name': itemDoc['name'],
+          'image': itemDoc['image'],
+          'price': itemDoc['price'],
+          'uid': itemUid,
+        });
+      }
+    }
+
+    return popularItems;
   }
 }

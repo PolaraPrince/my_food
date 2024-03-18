@@ -67,5 +67,4 @@ class SharedPreferenceHelper {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(categoryKey);
   }
-  
 }

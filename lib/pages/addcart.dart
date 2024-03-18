@@ -99,7 +99,11 @@ class _CartPageState extends State<CartPage> {
   @override
   void initState() {
     super.initState();
-    getCurrentUser();
+    user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      userId = user!.uid;
+      getCartItems(userId!);
+    }
   }
 
   @override
@@ -107,7 +111,6 @@ class _CartPageState extends State<CartPage> {
     final totalPrice = calculateTotalPrice();
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff9AD0C2),
         title: Text(
           "My Cart",
           style: AppWidget.headlineTextFeildStyle(),
@@ -115,15 +118,28 @@ class _CartPageState extends State<CartPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).maybePop(context);
           },
         ),
       ),
       body: Container(
-        color: Color(0xff9AD0C2),
         child: cartItems.isEmpty
             ? Center(
-                child: Text('Your cart is empty'),
+                child: FutureBuilder(
+                  future: userId != null ? getCartItems(userId!) : null,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator(
+                        color: Color(0xff6D3805),
+                        strokeWidth: 2,
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Text('Your cart is empty');
+                    }
+                  },
+                ),
               )
             : Column(
                 children: [
@@ -136,7 +152,7 @@ class _CartPageState extends State<CartPage> {
                         final price = item['price'];
 
                         return Dismissible(
-                          movementDuration: Duration(seconds: 5),
+                          movementDuration: Duration(seconds: 3),
                           key: Key(item['docId']),
                           onDismissed: (direction) {
                             removeItemFromCart(context, item['docId']);
@@ -156,21 +172,27 @@ class _CartPageState extends State<CartPage> {
                                 vertical: 5, horizontal: 10),
                             padding: EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Color(0xffF1FADA),
+                              color: Color.fromARGB(218, 104, 54, 6),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: ListTile(
                               title: Text(
                                 '$name',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white),
                               ),
                               subtitle: Text(
                                 '₹ $price',
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white),
                               ),
                               trailing: Text(
                                 'Quantity: ${item['quantity']}',
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white),
                               ),
                             ),
                           ),
@@ -237,7 +259,7 @@ class _CartPageState extends State<CartPage> {
 
                                               if (snapshot.connectionState ==
                                                   ConnectionState.waiting) {
-                                                return CircularProgressIndicator();
+                                                return Center();
                                               }
 
                                               return ListView.builder(
@@ -267,11 +289,19 @@ class _CartPageState extends State<CartPage> {
                                                           border: Border.all(
                                                               color: addressType ==
                                                                       'Home'
-                                                                  ? Colors.green
+                                                                  ? Color
+                                                                      .fromARGB(
+                                                                          255,
+                                                                          240,
+                                                                          134,
+                                                                          47)
                                                                   : (addressType ==
                                                                           'Office'
-                                                                      ? Colors
-                                                                          .blue
+                                                                      ? Color.fromARGB(
+                                                                          255,
+                                                                          102,
+                                                                          177,
+                                                                          239)
                                                                       : Color(
                                                                           0xffF1FADA))),
                                                           borderRadius:
@@ -314,11 +344,20 @@ class _CartPageState extends State<CartPage> {
                                                               BoxDecoration(
                                                             color: addressType ==
                                                                     'Home'
-                                                                ? Colors.green
+                                                                ? Color
+                                                                    .fromARGB(
+                                                                        255,
+                                                                        240,
+                                                                        134,
+                                                                        47)
                                                                 : (addressType ==
                                                                         'Office'
-                                                                    ? Colors
-                                                                        .blue
+                                                                    ? Color
+                                                                        .fromARGB(
+                                                                            255,
+                                                                            102,
+                                                                            177,
+                                                                            239)
                                                                     : Colors
                                                                         .transparent),
                                                             borderRadius: BorderRadius
@@ -404,7 +443,7 @@ class _CartPageState extends State<CartPage> {
                         width: MediaQuery.of(context).size.width,
                         height: 40.0,
                         decoration: BoxDecoration(
-                            color: Color(0xffF1FADA),
+                            color: Color.fromARGB(255, 240, 194, 111),
                             borderRadius: BorderRadius.circular(8.0)),
                         child: Text(
                           "Address",
@@ -428,15 +467,24 @@ class _CartPageState extends State<CartPage> {
                             );
                           },
                           child: Container(
-                            padding: EdgeInsets.only(top: 7, left: 11),
+                            padding:
+                                EdgeInsets.only(top: 9, left: 10, right: 10),
                             height: 40.0,
-                            width: 160.0,
+                            width: 140.0,
                             decoration: BoxDecoration(
-                                color: Color(0xffF1FADA),
+                                color: Color(0xffFF5E00),
                                 borderRadius: BorderRadius.circular(20.0)),
-                            child: Text(
-                              "Make Payment",
-                              style: AppWidget.semiBoldTextFeildStyle(),
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 5, left: 2, right: 2),
+                              child: Text(
+                                "Make Payment",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Poppins'),
+                              ),
                             ),
                           ),
                         ),

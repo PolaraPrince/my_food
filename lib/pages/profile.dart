@@ -1,11 +1,11 @@
 import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_food/pages/login.dart';
 import 'package:my_food/service/auth.dart';
-import 'package:my_food/service/shared_pref.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Profile extends StatefulWidget {
   const Profile({Key? key}) : super(key: key);
@@ -14,409 +14,345 @@ class Profile extends StatefulWidget {
   State<Profile> createState() => _ProfileState();
 }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Profile'),
-    ),
-    body: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Name: ${_name ?? 'Unknown'}'),
-          Text('Email: ${_email ?? 'Unknown'}'),
-        ],
-      ),
-    ),
-  );
-}
-
-String _name = '';
-String _email = '';
-
-Future<void> _getUserData() async {
-  final prefs = await SharedPreferences.getInstance();
-  final name = prefs.getString('userNameKey');
-  final email = prefs.getString('userEmailKey');
-}
-
 class _ProfileState extends State<Profile> {
-  String? profile, name, email;
+  String? profile;
+  String name = '';
+  String? email;
+  bool isLoading = true;
+  final user = FirebaseAuth.instance.currentUser;
+
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
 
   Future getImage() async {
     var image = await _picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      selectedImage = File(image!.path);
-      uploadItem();
-    });
-  }
-
-  uploadItem() async {
-    if (selectedImage != null) {
-      Reference firebaseStorageRef = FirebaseStorage.instance
-          .ref()
-          .child("profileImages/${DateTime.now().millisecondsSinceEpoch}");
-      UploadTask uploadTask = firebaseStorageRef.putFile(selectedImage!);
-
-      TaskSnapshot taskSnapshot = await uploadTask;
-      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
-      await SharedPreferenceHelper().saveUserProfile(downloadUrl);
-      setState(() {});
-    }
-  }
-
-  getthesharedpref() async {
-    profile = await SharedPreferenceHelper().getUserProfile();
-    name = await SharedPreferenceHelper().getUserName();
-    email = await SharedPreferenceHelper().getUserEmail();
-
-    setState(() {
-      _name = name ?? '';
-      _email = email ?? '';
-    });
-  }
-
-  onthisload() async {
-    await getthesharedpref();
-    setState(() {});
+    //   setState(() {
+    //     selectedImage = File(image!.path);
+    //     uploadItem();
+    //   });
   }
 
   @override
   void initState() {
-    onthisload();
-    _getUserData();
     super.initState();
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          setState(() {
+            name = documentSnapshot['name'];
+            isLoading = false;
+          });
+        }
+      });
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: name == null
-          ? CircularProgressIndicator()
-          : Container(
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        padding:
-                            EdgeInsets.only(top: 45.0, left: 20.0, right: 20.0),
-                        height: MediaQuery.of(context).size.height / 4.3,
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.vertical(
-                                bottom: Radius.elliptical(
-                                    MediaQuery.of(context).size.width, 105.0))),
+      body: Container(
+        child: Column(
+          children: [
+            Stack(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(top: 45.0, left: 20.0, right: 20.0),
+                  height: MediaQuery.of(context).size.height / 4.3,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.vertical(
+                          bottom: Radius.elliptical(
+                              MediaQuery.of(context).size.width, 105.0))),
+                ),
+                Center(
+                  child: Container(
+                    margin: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height / 6.5),
+                    child: Material(
+                      elevation: 10.0,
+                      borderRadius: BorderRadius.circular(60),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(60),
+                        child: selectedImage == null
+                            ? GestureDetector(
+                                onTap: () {
+                                  getImage();
+                                },
+                                child: profile == null
+                                    ? Image.asset(
+                                        "images/boy.png",
+                                        height: 120,
+                                        width: 120,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.network(
+                                        profile!,
+                                        height: 120,
+                                        width: 120,
+                                        fit: BoxFit.cover,
+                                      ),
+                              )
+                            : Image.file(
+                                selectedImage!,
+                                height: 120,
+                                width: 120,
+                                fit: BoxFit.cover,
+                              ),
                       ),
-                      Center(
-                        child: Container(
-                          margin: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height / 6.5),
-                          child: Material(
-                            elevation: 10.0,
-                            borderRadius: BorderRadius.circular(60),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(60),
-                              child: selectedImage == null
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        getImage();
-                                      },
-                                      child: profile == null
-                                          ? Image.asset(
-                                              "images/boy.png",
-                                              height: 120,
-                                              width: 120,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Image.network(
-                                              profile!,
-                                              height: 120,
-                                              width: 120,
-                                              fit: BoxFit.cover,
-                                            ),
-                                    )
-                                  : Image.file(
-                                      selectedImage!,
-                                      height: 120,
-                                      width: 120,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            if (user != null)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Material(
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 2.0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 10.0,
+                    ),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.person,
+                          color: Colors.black,
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 70.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        SizedBox(
+                          width: 20.0,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Text(
+                              "Name",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600),
+                            ),
                             Text(
                               name!,
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 23.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Poppins'),
+                                  color: Colors.black,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            SizedBox(
+              height: 30.0,
+            ),
+            if (user != null)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Material(
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 2.0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 10.0,
+                    ),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.email,
+                          color: Colors.black,
+                        ),
+                        SizedBox(
+                          width: 20.0,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Email",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              '${user!.email}',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            SizedBox(
+              height: 30.0,
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 20.0),
+              child: Material(
+                borderRadius: BorderRadius.circular(10),
+                elevation: 2.0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 15.0,
+                    horizontal: 10.0,
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.description,
+                        color: Colors.black,
                       ),
+                      SizedBox(
+                        width: 20.0,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Terms and Condition",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      )
                     ],
                   ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Material(
-                      borderRadius: BorderRadius.circular(10),
-                      elevation: 2.0,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 15.0,
-                          horizontal: 10.0,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.person,
-                              color: Colors.black,
-                            ),
-                            SizedBox(
-                              width: 20.0,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Name",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  name!,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Material(
-                      borderRadius: BorderRadius.circular(10),
-                      elevation: 2.0,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 15.0,
-                          horizontal: 10.0,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.email,
-                              color: Colors.black,
-                            ),
-                            SizedBox(
-                              width: 20.0,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Email",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  email!,
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Material(
-                      borderRadius: BorderRadius.circular(10),
-                      elevation: 2.0,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 15.0,
-                          horizontal: 10.0,
-                        ),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.description,
-                              color: Colors.black,
-                            ),
-                            SizedBox(
-                              width: 20.0,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Terms and Condition",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      AuthMethods().deleteuser();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Material(
-                        borderRadius: BorderRadius.circular(10),
-                        elevation: 2.0,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 15.0,
-                            horizontal: 10.0,
-                          ),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.delete,
-                                color: Colors.black,
-                              ),
-                              SizedBox(
-                                width: 20.0,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Delete Account",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20.0,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      AuthMethods().SignOut();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Material(
-                        borderRadius: BorderRadius.circular(10),
-                        elevation: 2.0,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 15.0,
-                            horizontal: 10.0,
-                          ),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.logout,
-                                color: Colors.black,
-                              ),
-                              SizedBox(
-                                width: 20.0,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "LogOut",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20.0,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
+                ),
               ),
             ),
+            SizedBox(
+              height: 30.0,
+            ),
+            GestureDetector(
+              onTap: () {
+                AuthMethods().deleteuser();
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Material(
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 2.0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 10.0,
+                    ),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete,
+                          color: Colors.black,
+                        ),
+                        SizedBox(
+                          width: 20.0,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Delete Account",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 30.0,
+            ),
+            GestureDetector(
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => LogIn()));
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Material(
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 2.0,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 10.0,
+                    ),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.logout,
+                          color: Colors.black,
+                        ),
+                        SizedBox(
+                          width: 20.0,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "LogOut",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
-  }
-
-  Future<void> _getUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    final name = prefs.getString('userNameKey');
-    final email = prefs.getString('userEmailKey');
-    setState(() {
-      _name = name ?? '';
-      _email = email ?? '';
-    });
   }
 }

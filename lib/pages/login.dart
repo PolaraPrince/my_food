@@ -73,8 +73,7 @@ class _LogInState extends State<LogIn> {
   userLogin() async {
     try {
       if (_formkey.currentState!.validate()) {
-        await login(
-            email, password, context); 
+        await login(email, password, context);
       }
     } catch (e) {
       print('Error during login: $e');
@@ -113,7 +112,7 @@ class _LogInState extends State<LogIn> {
                 child: Text(""),
               ),
               Container(
-                margin: EdgeInsets.only(top: 60.0, left: 20.0, right: 20.0),
+                margin: EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
                 child: Column(
                   children: [
                     Center(
@@ -131,7 +130,7 @@ class _LogInState extends State<LogIn> {
                       child: Container(
                         padding: EdgeInsets.only(left: 20.0, right: 20.0),
                         width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 2,
+                        height: MediaQuery.of(context).size.height / 1.7,
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(20)),
@@ -200,7 +199,7 @@ class _LogInState extends State<LogIn> {
                                     )),
                               ),
                               SizedBox(
-                                height: 80.0,
+                                height: 40.0,
                               ),
                               GestureDetector(
                                 onTap: () {
@@ -212,26 +211,29 @@ class _LogInState extends State<LogIn> {
                                   }
                                   userLogin(); // Pass the context here
                                 },
-                                child: Material(
-                                  elevation: 5.0,
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                    width: 200,
-                                    decoration: BoxDecoration(
-                                        color: Color(0Xffff5722),
-                                        borderRadius:
-                                            BorderRadius.circular(20)),
-                                    child: Center(
-                                        child: Text(
-                                      "LOGIN",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18.0,
-                                          fontFamily: 'Poppins1',
-                                          fontWeight: FontWeight.bold),
-                                    )),
+                                child: Expanded(
+                                  flex: 1,
+                                  child: Material(
+                                    elevation: 5.0,
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Container(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 8.0),
+                                      width: 200,
+                                      decoration: BoxDecoration(
+                                          color: Color(0Xffff5722),
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: Center(
+                                          child: Text(
+                                        "LOGIN",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18.0,
+                                            fontFamily: 'Poppins1',
+                                            fontWeight: FontWeight.bold),
+                                      )),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -241,7 +243,7 @@ class _LogInState extends State<LogIn> {
                       ),
                     ),
                     SizedBox(
-                      height: 70.0,
+                      height: 40.0,
                     ),
                     GestureDetector(
                       onTap: () {
