@@ -9,7 +9,7 @@ class UnbordingContent {
 List<UnbordingContent> contents = [
   UnbordingContent(
       image: "images/screen1.png",
-      title: "Select Your Favourite Food\n             Best Quality",
+      title: "Select Your Favourite Food\nBest Quality",
       description: "Pick your food from our menu"),
   UnbordingContent(
       image: "images/screen2.png",

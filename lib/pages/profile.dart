@@ -57,7 +57,8 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
           children: [
             Stack(

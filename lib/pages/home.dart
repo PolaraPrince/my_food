@@ -273,7 +273,11 @@ class _HomeState extends State<Home> {
         ),
         SizedBox(height: 15),
         Padding(
-          padding: const EdgeInsets.only(left: 15, right: 15, bottom: 10),
+          padding: const EdgeInsets.only(
+            left: 15,
+            right: 15,
+            bottom: 10,
+          ),
           child: Text(
             'Popular Deals',
             style: AppWidget.semiBoldTextFeildStyle(),
@@ -290,7 +294,7 @@ class _HomeState extends State<Home> {
             } else {
               return Container(
                 padding: EdgeInsets.only(left: 15),
-                height: 200,
+                height: 220,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: snapshot.data!.length,
@@ -302,6 +306,9 @@ class _HomeState extends State<Home> {
                     final itemUid = item['uid'];
 
                     return Container(
+                      margin: EdgeInsets.only(
+                          right: 10, top: 20, bottom: 5, left: 15),
+                      height: 190,
                       width: 150,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
@@ -321,17 +328,22 @@ class _HomeState extends State<Home> {
                             onTap: () {
                               _handleItemTap(itemUid);
                             },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(5),
-                              child: CachedNetworkImage(
-                                imageUrl: itemImage,
-                                width: 150,
-                                height: 100,
-                                fit: BoxFit.contain,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 5.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(5),
+                                child: CachedNetworkImage(
+                                  imageUrl: itemImage,
+                                  width: 150,
+                                  height: 100,
+                                  fit: BoxFit.contain,
+                                ),
                               ),
                             ),
                           ),
-                          SizedBox(height: 5),
+                          SizedBox(
+                            height: 5,
+                          ),
                           Text(
                             itemName,
                             style: TextStyle(
@@ -377,6 +389,9 @@ class _HomeState extends State<Home> {
             }
           },
         ),
+        SizedBox(
+          height: 20.0,
+        )
       ]),
     ));
   }

@@ -41,41 +41,41 @@ class _OnboardState extends State<Onboard> {
                 });
               },
               itemBuilder: (_, i) {
-                return Padding(
-                  padding: EdgeInsets.all(55.0),
-                  child: Column(children: [
-                    Image.asset(
-                      contents[i].image,
-                      height: 283.4,
-                      width: MediaQuery.of(context).size.width,
-                      fit: BoxFit.fill,
-                    ),
-                    SizedBox(
-                      height: 40.0,
-                    ),
-                    Text(
-                      contents[i].title,
-                      style: AppWidget.boldTextFeildStyle(),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Text(
-                      contents[i].description,
-                      style: AppWidget.lightTextFeildStyle(),
-                    ),
-                  ]),
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(55.0),
+                    child: Column(children: [
+                      Image.asset(
+                        contents[i].image,
+                        height: 283.4,
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.fill,
+                      ),
+                      SizedBox(
+                        height: 40.0,
+                      ),
+                      Text(
+                        contents[i].title,
+                        style: AppWidget.boldTextFeildStyle(),
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      Text(
+                        contents[i].description,
+                        style: AppWidget.lightTextFeildStyle(),
+                      ),
+                    ]),
+                  ),
                 );
               },
             ),
           ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                contents.length,
-                (index) => buildDot(index, context),
-              ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              contents.length,
+              (index) => buildDot(index, context),
             ),
           ),
           GestureDetector(

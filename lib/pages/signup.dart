@@ -80,7 +80,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: SingleChildScrollView(
         child: Stack(
           children: [
             Container(
@@ -116,7 +116,7 @@ class _SignUpState extends State<SignUp> {
                 children: [
                   Center(
                     child: Image.asset(
-                      "images/logo.png",
+                      "images/logo2.png",
                       width: MediaQuery.of(context).size.width / 3,
                       fit: BoxFit.cover,
                     ),

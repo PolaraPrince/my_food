@@ -466,24 +466,27 @@ class _CartPageState extends State<CartPage> {
                               MaterialPageRoute(builder: (context) => Wallet()),
                             );
                           },
-                          child: Container(
-                            padding:
-                                EdgeInsets.only(top: 9, left: 10, right: 10),
-                            height: 40.0,
-                            width: 140.0,
-                            decoration: BoxDecoration(
-                                color: Color(0xffFF5E00),
-                                borderRadius: BorderRadius.circular(20.0)),
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 5, left: 2, right: 2),
-                              child: Text(
-                                "Make Payment",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Poppins'),
+                          child: Expanded(
+                            flex: 1,
+                            child: Container(
+                              padding:
+                                  EdgeInsets.only(top: 9, left: 10, right: 10),
+                              height: 40.0,
+                              width: 140.0,
+                              decoration: BoxDecoration(
+                                  color: Color(0xffFF5E00),
+                                  borderRadius: BorderRadius.circular(20.0)),
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    bottom: 5, left: 2, right: 2),
+                                child: Text(
+                                  "Make Payment",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins'),
+                                ),
                               ),
                             ),
                           ),

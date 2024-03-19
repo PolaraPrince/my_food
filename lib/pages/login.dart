@@ -117,7 +117,7 @@ class _LogInState extends State<LogIn> {
                   children: [
                     Center(
                         child: Image.asset(
-                      "images/logo.png",
+                      "images/logo2.png",
                       width: MediaQuery.of(context).size.width / 3,
                       fit: BoxFit.cover,
                     )),

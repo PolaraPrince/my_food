@@ -83,43 +83,39 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff9AD0C2),
         title: CupertinoSearchTextField(
           controller: _searchController,
           placeholder: 'Search...',
           onSubmitted: (_) {},
         ),
       ),
-      body: Container(
-        color: Color(0xffF1FADA),
-        child: Expanded(
-          child: ListView.builder(
-            itemCount: _resultList.length,
-            itemBuilder: (context, index) {
-              if (index == 0 && _resultList.isEmpty) {
-                return Center(
-                  child: Text(
-                    'No results found',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                );
-              }
-              return ListTile(
-                leading: CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Colors.black12,
-                  child: Icon(
-                    Icons.search,
-                    color: Colors.black87,
-                  ),
+      body: Expanded(
+        child: ListView.builder(
+          itemCount: _resultList.length,
+          itemBuilder: (context, index) {
+            if (index == 0 && _resultList.isEmpty) {
+              return Center(
+                child: Text(
+                  'No results found',
+                  style: TextStyle(fontSize: 24),
                 ),
-                title: Text(_resultList[index]['name']),
-                onTap: () {
-                  _handleCategoryTap(_resultList[index]['name']);
-                },
               );
-            },
-          ),
+            }
+            return ListTile(
+              leading: CircleAvatar(
+                radius: 15,
+                backgroundColor: Colors.black12,
+                child: Icon(
+                  Icons.search,
+                  color: Colors.black87,
+                ),
+              ),
+              title: Text(_resultList[index]['name']),
+              onTap: () {
+                _handleCategoryTap(_resultList[index]['name']);
+              },
+            );
+          },
         ),
       ),
     );
