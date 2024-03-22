@@ -109,4 +109,5 @@ class DatabaseMethods {
   Future<Stream<QuerySnapshot>> getFoodItem(String name) async {
     return FirebaseFirestore.instance.collection(name).snapshots();
   }
+  
 }

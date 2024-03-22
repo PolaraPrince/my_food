@@ -150,7 +150,7 @@ class _ShowItemsState extends State<ShowItems> {
                                         padding:
                                             EdgeInsets.only(left: 6, right: 6),
                                         height: 30,
-                                        width: 85,
+                                        width: 84,
                                         decoration: BoxDecoration(
                                             color: Color.fromARGB(
                                                 255, 202, 201, 201),

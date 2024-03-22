@@ -10,7 +10,7 @@ class AddAddressPage extends StatefulWidget {
 class _AddAddressPageState extends State<AddAddressPage> {
   final _formKey = GlobalKey<FormState>();
   late String _name, _houseno, _apartment, _landmark, _city, _zipCode;
- 
+
   late String _selectedLocation = "";
   @override
   Widget build(BuildContext context) {
@@ -117,7 +117,6 @@ class _AddAddressPageState extends State<AddAddressPage> {
                       },
                     ),
                   ),
-                
                   ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
@@ -144,7 +143,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
                         }
                       }
                     },
-                    child: Text("Submit"),
+                    child: Text("Add"),
                   ),
                 ],
               ),

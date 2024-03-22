@@ -5,12 +5,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:my_food/pages/addaddress.dart';
 import 'package:my_food/pages/addcart.dart';
-import 'package:my_food/pages/categorycard.dart';
+import 'package:my_food/pages/details.dart';
 import 'package:my_food/pages/showItems.dart';
 import 'package:my_food/pages/searchpage.dart';
 import 'package:my_food/service/database.dart';
@@ -307,7 +304,7 @@ class _HomeState extends State<Home> {
 
                     return Container(
                       margin: EdgeInsets.only(
-                          right: 10, top: 20, bottom: 5, left: 15),
+                          right: 10, top: 15, bottom: 5, left: 10),
                       height: 190,
                       width: 150,
                       decoration: BoxDecoration(
@@ -315,9 +312,9 @@ class _HomeState extends State<Home> {
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey,
+                            color: const Color.fromARGB(255, 187, 187, 187),
                             offset: Offset(0.0, 1.0),
-                            blurRadius: 6.0,
+                            blurRadius: 4.0,
                           ),
                         ],
                       ),
@@ -420,12 +417,19 @@ class _HomeState extends State<Home> {
   }
 
   void _handleItemTap(String itemId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CartPage(),
-      ),
-    );
+    final itemDoc = FirebaseFirestore.instance.collection('items').doc(itemId);
+    itemDoc.get().then((DocumentSnapshot documentSnapshot) {
+      if (documentSnapshot.exists) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailsPage(
+              item: documentSnapshot,
+            ),
+          ),
+        );
+      }
+    });
   }
 
   Future<List<Map<String, dynamic>>> getPopularItems() async {

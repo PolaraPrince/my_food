@@ -53,121 +53,133 @@ class _DetailsPageState extends State<DetailsPage> {
         backgroundColor: Colors.white,
         title: Text(widget.item['name']),
       ),
-      body: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        child: Padding(
-          padding: const EdgeInsets.all(14.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (_imageUrl != null)
-                CachedNetworkImage(
-                  imageUrl: _imageUrl!,
-                  height: MediaQuery.of(context).size.height / 2.3,
-                  width: MediaQuery.of(context).size.width / 1,
-                  fit: BoxFit.fill,
-                )
-              else
-                Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xff6D3805),
-                    strokeWidth: 2,
+      body: Padding(
+        padding: const EdgeInsets.all(14.0),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_imageUrl != null)
+                  Expanded(
+                    child: Flexible(
+                      flex: 1,
+                      child: CachedNetworkImage(
+                        imageUrl: _imageUrl!,
+                        height: MediaQuery.of(context).size.height / 2.5,
+                        width: MediaQuery.of(context).size.width / 1,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  )
+                else
+                  Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xff6D3805),
+                      strokeWidth: 2,
+                    ),
                   ),
-                ),
-              SizedBox(height: 16),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                SizedBox(height: 16),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.item['name'],
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ]),
+                SizedBox(height: 16),
                 Expanded(
                   child: Text(
-                    widget.item['name'],
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    widget.item['detail'],
+                    style: TextStyle(fontSize: 16),
                   ),
                 ),
-              ]),
-              SizedBox(height: 16),
-              Expanded(
-                child: Text(
-                  widget.item['detail'],
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 5.0),
-                child: Container(
-                  padding: EdgeInsets.only(left: 6, right: 6),
-                  height: 50,
-                  width: 286,
-                  decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 224, 222, 222),
-                      borderRadius: BorderRadius.circular(40)),
-                  child: Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: GestureDetector(
-                            onTap: () {
-                              if (_quantityValue > 0) {
+                Padding(
+                  padding: const EdgeInsets.only(right: 5.0),
+                  child: Container(
+                    padding: EdgeInsets.only(left: 6, right: 6),
+                    height: 50,
+                    width: 286,
+                    decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 224, 222, 222),
+                        borderRadius: BorderRadius.circular(40)),
+                    child: Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: GestureDetector(
+                              onTap: () {
+                                if (_quantityValue > 0) {
+                                  setState(() {
+                                    _quantityValue--;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                height: 38.0,
+                                width: 38.0,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  Icons.remove,
+                                  color: Color(0xff6D3805),
+                                  size: 28.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 85.0),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              _quantityValue.toString(),
+                              style: TextStyle(
+                                  fontSize: 21, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          SizedBox(width: 85.0),
+                          Expanded(
+                            flex: 1,
+                            child: GestureDetector(
+                              onTap: () {
                                 setState(() {
-                                  _quantityValue--;
+                                  _quantityValue++;
                                 });
-                              }
-                            },
-                            child: Container(
-                              height: 38.0,
-                              width: 38.0,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Icon(
-                                Icons.remove,
-                                color: Color(0xff6D3805),
-                                size: 28.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: 85.0),
-                        Expanded(
-                          flex: 1,
-                          child: Text(
-                            _quantityValue.toString(),
-                            style: TextStyle(
-                                fontSize: 21, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        SizedBox(width: 85.0),
-                        Expanded(
-                          flex: 1,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _quantityValue++;
-                              });
-                            },
-                            child: Container(
-                              height: 38.0,
-                              width: 38.0,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Icon(
-                                Icons.add,
-                                color: Color(0xff6D3805),
-                                size: 28.0,
+                              },
+                              child: Container(
+                                height: 38.0,
+                                width: 38.0,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Icon(
+                                  Icons.add,
+                                  color: Color(0xff6D3805),
+                                  size: 28.0,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 10.0)
-            ],
+                SizedBox(height: 10.0)
+              ],
+            ),
           ),
         ),
       ),

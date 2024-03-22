@@ -96,6 +96,54 @@ class _CartPageState extends State<CartPage> {
     return totalPrice;
   }
 
+  Future<void> updateQuantity(String docId, int newQuantity) async {
+    try {
+      await FirebaseFirestore.instance.collection('cart').doc(docId).update({
+        'quantity': newQuantity,
+      });
+      if (user != null) {
+        await getCartItems(user!.uid);
+      }
+    } catch (error) {
+      print('Error updating quantity: $error');
+    }
+  }
+
+  Future<void> removeItemFromCart(BuildContext context, String docId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('cart').doc(docId).delete();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Item removed from cart'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      if (user != null) {
+        getCartItems(user.uid);
+      }
+    }
+  }
+
+  void decrementQuantity(String docId,
+      {required int currentQuantity, required BuildContext context}) {
+    if (currentQuantity > 1) {
+      updateQuantity(docId, currentQuantity - 1);
+    } else {
+      removeItemFromCart(context, docId);
+    }
+    setState(() {});
+  }
+
+  void incrementQuantity(String docId,
+      {required int currentQuantity, required BuildContext context}) {
+    if (currentQuantity < 10) {
+      updateQuantity(docId, currentQuantity + 1);
+    }
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
@@ -150,12 +198,15 @@ class _CartPageState extends State<CartPage> {
                         final item = cartItems[index];
                         final name = item['name'];
                         final price = item['price'];
+                        final docId = item['docId'];
+
+                        int currentQuantity = item['quantity'] ?? 0;
 
                         return Dismissible(
                           movementDuration: Duration(seconds: 3),
-                          key: Key(item['docId']),
+                          key: Key(docId),
                           onDismissed: (direction) {
-                            removeItemFromCart(context, item['docId']);
+                            removeItemFromCart(context, docId);
                           },
                           background: Container(
                             color: Colors.red,
@@ -175,25 +226,94 @@ class _CartPageState extends State<CartPage> {
                               color: Color.fromARGB(218, 104, 54, 6),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: ListTile(
-                              title: Text(
-                                '$name',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
-                              subtitle: Text(
-                                '₹ $price',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white),
-                              ),
-                              trailing: Text(
-                                'Quantity: ${item['quantity']}',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white),
-                              ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '$name',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        '₹ $price',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(left: 6, right: 6),
+                                  height: 30,
+                                  width: 81,
+                                  decoration: BoxDecoration(
+                                      color: Color.fromARGB(255, 202, 201, 201),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          decrementQuantity(docId,
+                                              currentQuantity: currentQuantity,
+                                              context: context);
+                                        },
+                                        child: Container(
+                                          height: 20.0,
+                                          width: 20.0,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Icon(
+                                            Icons.remove,
+                                            color: Color(0xff6D3805),
+                                            size: 18.0,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10.0),
+                                      Text(
+                                        '${currentQuantity}',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff6D3805)),
+                                      ),
+                                      SizedBox(width: 10.0),
+                                      GestureDetector(
+                                        onTap: () {
+                                          incrementQuantity(docId,
+                                              currentQuantity: currentQuantity,
+                                              context: context);
+                                        },
+                                        child: Container(
+                                          height: 20.0,
+                                          width: 20.0,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Icon(
+                                            Icons.add,
+                                            color: Color(0xff6D3805),
+                                            size: 18.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -498,21 +618,5 @@ class _CartPageState extends State<CartPage> {
               ),
       ),
     );
-  }
-
-  Future<void> removeItemFromCart(BuildContext context, String docId) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await FirebaseFirestore.instance.collection('cart').doc(docId).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Item removed from cart'),
-          duration: Duration(seconds: 1),
-        ),
-      );
-      if (user != null) {
-        getCartItems(user.uid);
-      }
-    }
   }
 }
